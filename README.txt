@@ -1,20 +1,24 @@
 TRIPAS DE ACHILATA — SITIO ESTÁTICO
 
-Contenido:
-- index.html: página principal
-- assets\styles.css: estilos
-- assets\app.js: buscador y archivo por año
-- assets\posts.json: copia estática de las 26 entradas del archivo público consultado
+Estructura:
+- index.html: portada y estructura semántica de la página.
+- assets\css\styles.css: estilos propios, paleta, diseño adaptable y temas.
+- assets\js\app.js: archivo interactivo, buscador, filtros y cambio visual.
+- assets\data\posts.json: copia estática de las 26 entradas del archivo público.
 
-La portada destaca 2018, el año de origen indicado para los proyectos, y muestra primero sus 11 entradas. Las demás entradas y sus contenidos se muestran a continuación, agrupados por año; el buscador y los filtros permiten recorrerlas. Una entrada de audio del archivo original no conserva texto ni cuerpo publicado, por lo que la página la señala sin inventar contenido.
+La interfaz usa Bootstrap 5.3.3 desde jsDelivr, Roboto y Lora desde Google Fonts, además de estilos propios. La portada incluye un carrusel de dos fotos de grupos de estudiantes con transición suave y controles accesibles; se detiene al pasar el puntero o el foco y respeta la preferencia de movimiento reducido. También muestra tres historias destacadas con imágenes; cada enlace abre la publicación correspondiente en el archivo. El archivo presenta primero las publicaciones de 2018 y agrupa las demás por año en tarjetas con imagen y contenido desplegable. Incluye búsqueda y filtros por año; en pantallas grandes, la barra de búsqueda queda fija durante el desplazamiento. Al abrir una publicación, su tarjeta ocupa el ancho del archivo y las secuencias de fotos se presentan en una cuadrícula adaptable sin recortar las imágenes. Las fotos del contenido se solicitan a 640 px y usan carga diferida; al abrirlas, conservan el enlace a la imagen original. Las miniaturas de Blogger se solicitan a mayor tamaño para presentarlas como imágenes de tarjeta, no como fondos detrás del texto. Las cabeceras anuales usan fondo liso para facilitar la lectura. Las fotos y los textos originales se obtienen del contenido archivado de Blogger. Se necesita conexión a internet para Bootstrap, las tipografías y las imágenes remotas.
 
-La entrada "CONTAGIANDO PALABRAS. LA HISTORIA - EBOOK" incluye un visor de Google Drive y un enlace alternativo para abrir o descargar el PDF. El archivo de Drive debe seguir compartido para que los visitantes puedan verlo.
+Las redes enlazadas son YouTube (@juancarlososman), Instagram (@juan_carlos4955) y TikTok (@ninoamalia1).
 
-Publicar conectando un repositorio Git:
-1. Sube el contenido de esta carpeta a un repositorio de GitHub.
+La entrada "CONTAGIANDO PALABRAS. LA HISTORIA - EBOOK" lleva al PDF compartido en Google Drive en una pestaña aparte; no se incrusta en la página. El enlace seguirá funcionando mientras el archivo conserve el permiso de acceso compartido.
+
+Publicar con GitHub y Vercel:
+1. Sube los archivos de esta carpeta a un repositorio de GitHub.
 2. Entra en https://vercel.com/new e inicia sesión.
-3. Importa ese repositorio. Vercel detectará que es un sitio estático.
+3. Importa el repositorio. Vercel detectará que es un sitio estático.
 4. Deja el directorio raíz en "." y el comando de compilación vacío; pulsa Deploy.
+
+Los cambios locales no se guardan automáticamente en GitHub. Para publicarlos, hay que subirlos al repositorio (por Git o desde GitHub); Vercel puede desplegarlos al detectar el nuevo cambio.
 
 Publicar con Vercel CLI:
 1. Instala Node.js si todavía no está instalado.
@@ -22,5 +26,3 @@ Publicar con Vercel CLI:
 3. Ejecuta: npm install -g vercel
 4. Ejecuta: vercel
 5. Para publicar la versión de producción, ejecuta: vercel --prod
-
-Las imágenes de la galería se cargan desde Unsplash y el video desde YouTube; se necesita conexión a internet para verlos.

@@ -3,79 +3,158 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="El archivo completo de Tripas de achilata, desde el nacimiento de sus proyectos en 2018.">
-  <meta name="theme-color" content="#f5f3ef">
-  <title>Tripas de achilata — proyectos, palabras y memoria</title>
-  <link rel="stylesheet" href="assets/styles.css">
-  <script src="assets/app.js" defer></script>
+  <meta name="description" content="Tripas de achilata: un archivo vivo de proyectos, lecturas y encuentros de Juan Carlos Osmán.">
+  <meta name="theme-color" content="#9B7EBD">
+  <meta property="og:title" content="Tripas de achilata">
+  <meta property="og:description" content="Historias que se leen, se escuchan y se comparten.">
+  <title>Tripas de achilata — historias para recorrer</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Roboto:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script src="assets/js/app.js" defer></script>
 </head>
 <body>
   <div class="site-shell">
     <header class="site-header">
-      <p class="eyebrow">Un archivo de proyectos, lecturas y encuentros</p>
-      <a class="site-title" href="./">Tripas de achilata</a>
-      <p class="site-subtitle">Frío trienio de tripa ausente como achilatero de helada casta. Gélida argamasa que el león lector saborea a tientas.</p>
+      <a class="brand" href="./" aria-label="Tripas de achilata, inicio">
+        <span class="brand-mark" aria-hidden="true">ta</span>
+        <span>Tripas <span class="brand-soft">de achilata</span></span>
+      </a>
+      <nav class="main-nav" aria-label="Navegación principal">
+        <a href="#inicio">Inicio</a>
+        <a href="#archivo">El archivo</a>
+        <a href="#sobre-el-proyecto">El proyecto</a>
+        <a href="#redes">Redes</a>
+      </nav>
+      <button id="theme-toggle" class="theme-toggle btn" type="button" aria-label="Activar modo oscuro">Modo oscuro</button>
     </header>
 
     <main>
-      <section class="origin" aria-labelledby="origin-title">
-        <div class="origin-copy">
-          <p class="eyebrow">El punto de partida</p>
-          <h1 id="origin-title">2018: nacen los proyectos</h1>
-          <p>El recorrido empieza aquí. Volvemos a las primeras publicaciones para contar cómo nacieron los proyectos y reunir sus experiencias, voces y materiales en un mismo lugar.</p>
-          <a class="origin-link" href="#archivo-2018">Recorrer las publicaciones de 2018 <span aria-hidden="true">↓</span></a>
+      <section id="inicio" class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span>Un archivo de proyectos, lecturas y encuentros</p>
+          <h1 id="hero-title">Historias que se leen,<br><span>se escuchan y se comparten</span></h1>
+          <p class="hero-intro">Un recorrido por las palabras, las personas y las ideas que dan vida a Tripas de achilata.</p>
+          <div class="hero-actions">
+            <a class="btn btn-hero" href="#archivo">Recorrer el archivo <span aria-hidden="true">↓</span></a>
+            <a class="hero-secondary-link" href="#sobre-el-proyecto">Conocé el proyecto <span aria-hidden="true">↗</span></a>
+          </div>
         </div>
-        <div class="origin-mark" aria-hidden="true"><span>2018</span><span>El comienzo</span></div>
+        <div class="hero-carousel" data-hero-carousel role="region" aria-roledescription="carrusel" aria-label="Grupos de estudiantes">
+          <figure class="hero-slide is-active" data-hero-slide aria-roledescription="diapositiva" aria-label="1 de 2" aria-hidden="false">
+            <img
+              src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh2L__DpJTfcMX9jKbZ9-7jPJXRoScY57K_88SIMA8p-cx-yKUixhmdT8ZRAkq6jb2dg8TpOSEAVanOkgrk-i6EJC9Z_5DiHPQ_F081fW-00u9ix0PZVPKVsVZ5-NeGcLYz9j4r3OQOIulMHNteZ-coV-oQtfmKlwPmWbh3um_nZA-np6ah8hQVZ2OlgbQl/s1600/20230901_145825.jpg"
+              alt="Grupo de estudiantes de la Escuela Secundaria Zavaleta, con uniforme celeste"
+              fetchpriority="high"
+              decoding="async">
+            <figcaption class="hero-caption">Escuela Secundaria Zavaleta</figcaption>
+          </figure>
+          <figure class="hero-slide" data-hero-slide aria-roledescription="diapositiva" aria-label="2 de 2" aria-hidden="true">
+            <img
+              src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEilAQsbE1J8GjUlpg8FCTOlOrlSrq96lLQyiMp2iExcF2t3cS4s4IK_R3rdEJsOLiEl52pB4A-J5sx1qXhm-gD9MT55x23SPbbqgHxqR9QKnnWZvjnP6hgQnhFbO6GtHCrb103mn2wqmf3t/s1600/IMG_20190329_155120.jpg"
+              alt="Grupo de estudiantes de la Escuela Social de C. C. Nuestra Señora del Valle, con uniforme blanco y marrón"
+              fetchpriority="low"
+              decoding="async">
+            <figcaption class="hero-caption">Escuela Social de C. C. Ntra. Sra. del Valle</figcaption>
+          </figure>
+          <div class="hero-indicators" role="group" aria-label="Elegir foto">
+            <button class="hero-indicator is-active" type="button" data-hero-slide-button="0" aria-label="Mostrar grupo de la Escuela Secundaria Zavaleta" aria-pressed="true"></button>
+            <button class="hero-indicator" type="button" data-hero-slide-button="1" aria-label="Mostrar grupo de la Escuela Social de C. C. Nuestra Señora del Valle" aria-pressed="false"></button>
+          </div>
+        </div>
       </section>
 
-      <div class="page-layout">
-        <div class="content-column">
-          <section id="archivo-2018" class="year-section origin-year" data-year-section="2018" aria-labelledby="year-2018-title">
-            <div class="year-heading">
-              <div>
-                <p class="eyebrow">Las primeras huellas</p>
-                <h2 id="year-2018-title">2018 <span>· El comienzo</span></h2>
-              </div>
-              <span class="year-count" data-year-count="2018"></span>
-            </div>
-            <div class="post-list" data-post-list="2018"></div>
-          </section>
+      <section id="sobre-el-proyecto" class="intro-strip" aria-labelledby="origin-title">
+        <div class="intro-mark" aria-hidden="true">✳</div>
+        <div>
+          <p class="eyebrow">El punto de partida</p>
+          <h2 id="origin-title">Un espacio para encontrarnos en las palabras</h2>
+          <p>Desde 2018, proyectos y publicaciones construyen este archivo. Acá podés volver a sus primeras huellas, descubrir sus historias y explorar cada año a tu ritmo.</p>
+        </div>
+        <a class="intro-link" href="#destacados">Conocé algunas historias <span aria-hidden="true">↓</span></a>
+      </section>
 
-          <section id="archivo" class="archive-area" aria-labelledby="archive-title">
-            <div class="archive-heading">
-              <div>
-                <p class="eyebrow">Una historia que sigue creciendo</p>
-                <h2 id="archive-title">El recorrido completo</h2>
-              </div>
-              <p id="archive-summary" class="archive-summary">Cargando entradas…</p>
-            </div>
-            <div id="archive-years" class="archive-years"></div>
-          </section>
-          <p id="load-error" class="load-error" role="alert" hidden>No se pudo cargar el archivo. Comprueba la conexión e inténtalo de nuevo.</p>
+      <section id="destacados" class="featured-section" aria-labelledby="featured-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Momentos que nos unen</p>
+            <h2 id="featured-title">Historias destacadas</h2>
+          </div>
+          <a class="section-link" href="#archivo">Ver todo el archivo <span aria-hidden="true">→</span></a>
+        </div>
+        <div id="featured-posts" class="featured-grid"></div>
+      </section>
+
+      <section id="archivo" class="archive-section" aria-labelledby="archive-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Proyectos, lecturas y experiencias</p>
+            <h2 id="archive-title">Archivo de historias</h2>
+          </div>
+          <p id="archive-summary" class="archive-summary">Cargando entradas…</p>
         </div>
 
-        <aside class="sidebar" aria-label="Buscar y recorrer el archivo">
-          <section class="sidebar-section">
-            <h2>Buscar en las entradas</h2>
-            <label class="visually-hidden" for="post-search">Buscar por palabra o título</label>
-            <input id="post-search" class="search-box" type="search" placeholder="Buscar..." autocomplete="off">
-            <p id="search-status" class="search-status" aria-live="polite"></p>
-          </section>
-          <nav class="sidebar-section" aria-label="Archivo por año">
-            <h2>Archivo</h2>
-            <button class="archive-filter is-active" type="button" data-year-filter="all" aria-pressed="true">Todas las entradas <span id="all-count"></span></button>
-            <div id="year-filters" class="year-filters"></div>
-          </nav>
-          <section class="sidebar-note">
-            <p>Palabras y proyectos compartidos para volver a leer, escuchar y recorrer.</p>
-          </section>
-        </aside>
-      </div>
+        <div class="archive-layout row g-4">
+          <aside class="archive-sidebar col-lg-3" aria-label="Herramientas para recorrer el archivo">
+            <div class="sidebar-card card">
+              <div class="sidebar-section">
+                <label class="sidebar-title" for="post-search">¿Qué te gustaría encontrar?</label>
+                <div class="search-wrap">
+                  <span class="search-icon" aria-hidden="true">⌕</span>
+                  <input id="post-search" class="search-box form-control" type="search" placeholder="Buscar palabras o títulos..." autocomplete="off">
+                  <button id="search-clear" class="search-clear" type="button" aria-label="Borrar búsqueda" hidden>×</button>
+                </div>
+                <p id="search-status" class="search-status" aria-live="polite"></p>
+              </div>
+              <nav class="sidebar-section" aria-label="Filtrar publicaciones por año">
+                <h3 class="sidebar-title">Explorá por año</h3>
+                <button class="archive-filter is-active" type="button" data-year-filter="all" aria-pressed="true">Todos los años <span id="all-count" class="filter-count"></span></button>
+                <div id="year-filters" class="year-filters"></div>
+              </nav>
+              <div class="sidebar-note">
+                <span class="note-spark" aria-hidden="true">✦</span>
+                <p>Cada publicación guarda una parte de este camino compartido.</p>
+              </div>
+            </div>
+          </aside>
+
+          <div class="archive-content col-lg-9">
+            <section id="archivo-2018" class="year-section origin-year" data-year-section="2018" aria-labelledby="year-2018-title">
+              <div class="year-heading">
+                <div>
+                  <p class="eyebrow">Las primeras huellas</p>
+                  <h3 id="year-2018-title">2018 <span>· El comienzo</span></h3>
+                </div>
+                <span class="year-count" data-year-count="2018"></span>
+              </div>
+              <div class="post-list" data-post-list="2018"></div>
+            </section>
+            <div id="archive-years" class="archive-years"></div>
+            <p id="load-error" class="load-error" role="alert" hidden>No se pudo cargar el archivo. Comprobá la conexión e intentá de nuevo.</p>
+          </div>
+        </div>
+      </section>
     </main>
 
-    <footer class="site-footer">
-      <p>Tripas de achilata <span aria-hidden="true">·</span> Autor: Juan Carlos Osmán</p>
-      <a href="https://tripasdeachilata.blogspot.com/" target="_blank" rel="noopener noreferrer">Visitar el blog original</a>
+    <footer id="redes" class="site-footer">
+      <div class="footer-top">
+        <div>
+          <a class="brand footer-brand" href="./"><span class="brand-mark" aria-hidden="true">ta</span><span>Tripas <span class="brand-soft">de achilata</span></span></a>
+          <p class="footer-byline">Un archivo vivo de Juan Carlos Osmán.</p>
+        </div>
+        <div class="footer-socials" aria-label="Seguí a Juan Carlos Osmán">
+          <a href="https://www.youtube.com/@juancarlososman" target="_blank" rel="noopener noreferrer"><span>YouTube</span><strong>@juancarlososman</strong><span aria-hidden="true">↗</span></a>
+          <a href="https://www.instagram.com/juan_carlos4955/" target="_blank" rel="noopener noreferrer"><span>Instagram</span><strong>@juan_carlos4955</strong><span aria-hidden="true">↗</span></a>
+          <a href="https://www.tiktok.com/@ninoamalia1" target="_blank" rel="noopener noreferrer"><span>TikTok</span><strong>@ninoamalia1</strong><span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>Tripas de achilata <span aria-hidden="true">·</span> Hecho de historias y encuentros</span>
+        <a href="https://tripasdeachilata.blogspot.com/" target="_blank" rel="noopener noreferrer">Visitar el blog original <span aria-hidden="true">↗</span></a>
+      </div>
     </footer>
   </div>
 </body>
