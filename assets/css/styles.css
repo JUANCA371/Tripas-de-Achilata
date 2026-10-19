@@ -314,6 +314,21 @@ input {
   object-position: center;
 }
 
+.hero-slide--portrait::before {
+  position: absolute;
+  inset: -16px;
+  background-image: url("../images/hero-encuentro-escolar.jpg");
+  background-position: center;
+  background-size: cover;
+  content: "";
+  filter: blur(18px) brightness(0.62);
+}
+
+.hero-slide--portrait img {
+  position: relative;
+  object-fit: contain;
+}
+
 .hero-caption {
   position: absolute;
   right: 0;
