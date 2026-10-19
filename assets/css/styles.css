@@ -1138,15 +1138,6 @@ input {
   font-size: 0.75rem;
 }
 
-.footer-bottom a {
-  color: var(--footer-text);
-  text-decoration: none;
-}
-
-.footer-bottom a:hover {
-  color: var(--footer-text);
-}
-
 .contact-section {
   position: relative;
   padding: clamp(42px, 7vw, 82px) clamp(22px, 6vw, 76px);
