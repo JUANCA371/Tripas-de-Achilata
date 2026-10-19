@@ -496,7 +496,13 @@ contactForm.addEventListener("submit", (event) => {
   const message = contactForm.elements.namedItem("message").value.trim();
   const subject = `Consulta desde Tripas de achilata: ${name}`;
   const body = `Nombre: ${name}\nCorreo electrónico: ${email}\n\nMensaje:\n${message}`;
-  window.location.href = `mailto:juancarlososman371@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  const composeUrl = new URL("https://mail.google.com/mail/");
+  composeUrl.searchParams.set("view", "cm");
+  composeUrl.searchParams.set("fs", "1");
+  composeUrl.searchParams.set("to", "juancarlososman371@gmail.com");
+  composeUrl.searchParams.set("su", subject);
+  composeUrl.searchParams.set("body", body);
+  window.open(composeUrl.href, "_blank", "noopener,noreferrer");
 });
 
 updateTheme();

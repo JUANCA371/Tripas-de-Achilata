@@ -1191,6 +1191,40 @@ input {
   font-size: 0.76rem;
 }
 
+.contact-map-section {
+  display: grid;
+  margin-top: clamp(28px, 4vw, 42px);
+  gap: 12px;
+}
+
+.contact-map-heading .eyebrow {
+  margin-bottom: 3px;
+}
+
+.contact-map-heading h3 {
+  margin: 0;
+  color: var(--ink);
+  font-family: "Lora", Georgia, "Times New Roman", serif;
+  font-size: clamp(1.35rem, 2.5vw, 1.8rem);
+}
+
+.contact-map {
+  display: block;
+  width: 100%;
+  min-height: 300px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.contact-map-link {
+  justify-self: start;
+  color: var(--accent-dark);
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-underline-offset: 3px;
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;
