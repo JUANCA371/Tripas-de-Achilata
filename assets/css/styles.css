@@ -822,6 +822,15 @@ input {
   transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease, background-color 180ms ease;
 }
 
+.post-card[tabindex="0"] {
+  cursor: pointer;
+}
+
+.post-card[tabindex="0"]:focus-visible {
+  outline: 3px solid var(--accent-dark);
+  outline-offset: 3px;
+}
+
 .post-card.is-expanded {
   grid-column: 1 / -1;
 }

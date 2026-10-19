@@ -254,8 +254,21 @@ function makePostCard(post) {
     reading.append(content);
     reading.addEventListener("toggle", () => {
       article.classList.toggle("is-expanded", reading.open);
+      article.setAttribute("aria-expanded", String(reading.open));
+      summary.textContent = reading.open ? "Cerrar publicación" : "Leer publicación";
     });
     article.append(reading);
+    article.tabIndex = 0;
+    article.setAttribute("aria-expanded", "false");
+    article.addEventListener("click", (event) => {
+      if (event.target.closest("a, button, input, select, textarea, summary, .post-content")) return;
+      reading.open = !reading.open;
+    });
+    article.addEventListener("keydown", (event) => {
+      if (event.target !== article || (event.key !== "Enter" && event.key !== " ")) return;
+      event.preventDefault();
+      reading.open = !reading.open;
+    });
   } else {
     const note = document.createElement("p");
     note.className = "archive-note";
