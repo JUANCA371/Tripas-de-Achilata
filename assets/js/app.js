@@ -263,13 +263,6 @@ function makePostCard(post) {
     article.append(note);
   }
 
-  const originalLink = document.createElement("a");
-  originalLink.className = "original-link";
-  originalLink.href = safeUrl(post.url);
-  originalLink.target = "_blank";
-  originalLink.rel = "noopener noreferrer";
-  originalLink.textContent = "Ver entrada en el blog original";
-  article.append(originalLink);
   return article;
 }
 
