@@ -436,6 +436,7 @@ function initializeHeroCarousel() {
     slides.forEach((slide, slideIndex) => {
       const isActive = slideIndex === activeIndex;
       slide.classList.toggle("is-active", isActive);
+      slide.setAttribute("aria-label", `${slideIndex + 1} de ${slides.length}`);
       slide.setAttribute("aria-hidden", String(!isActive));
       buttons[slideIndex].classList.toggle("is-active", isActive);
       buttons[slideIndex].setAttribute("aria-pressed", String(isActive));
