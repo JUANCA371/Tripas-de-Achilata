@@ -24,6 +24,9 @@ const archiveSummary = document.querySelector("#archive-summary");
 const allCount = document.querySelector("#all-count");
 const themeToggle = document.querySelector("#theme-toggle");
 const contactForm = document.querySelector("#contact-form");
+const contactStatus = document.querySelector("#contact-status");
+const contactSubmit = contactForm.querySelector(".contact-submit");
+const contactSubmitLabel = contactSubmit.querySelector("[data-submit-label]");
 let activeYear = "all";
 let postCards = [];
 
@@ -59,6 +62,10 @@ function copySafeContent(node) {
 
   const tag = node.tagName.toLowerCase();
   if (removedTags.has(tag)) return document.createDocumentFragment();
+  const isSourceHeading = /^h[1-6]$/.test(tag);
+  if (isSourceHeading && !node.textContent.trim() && !node.querySelector("img, video")) {
+    return document.createDocumentFragment();
+  }
 
   if (!allowedTags.has(tag)) {
     const children = document.createDocumentFragment();
@@ -66,7 +73,8 @@ function copySafeContent(node) {
     return children;
   }
 
-  const element = document.createElement(tag);
+  const element = document.createElement(isSourceHeading ? "div" : tag);
+  if (isSourceHeading) element.className = "post-content-heading";
   if (tag === "a") {
     const href = safeUrl(node.getAttribute("href"));
     if (href) {
@@ -205,12 +213,7 @@ function makePostCard(post) {
 
   const heading = document.createElement("h4");
   heading.className = "post-title";
-  const titleLink = document.createElement("a");
-  titleLink.href = safeUrl(post.url);
-  titleLink.target = "_blank";
-  titleLink.rel = "noopener noreferrer";
-  titleLink.textContent = getPostTitle(post);
-  heading.append(titleLink);
+  heading.textContent = getPostTitle(post);
 
   const date = document.createElement("p");
   date.className = "post-date";
@@ -389,10 +392,21 @@ function updateFilters() {
     card.hidden = !(matchesYear && matchesText);
     if (!card.hidden) visible += 1;
   });
+  document.querySelectorAll("[data-year-section]").forEach((section) => {
+    const yearCards = [...section.querySelectorAll(".post-card")];
+    const visibleInYear = yearCards.filter((card) => !card.hidden).length;
+    section.hidden = visibleInYear === 0;
+    const count = section.querySelector(".year-count");
+    count.textContent = `${visibleInYear} ${visibleInYear === 1 ? "entrada" : "entradas"}`;
+  });
+  const publicationLabel = visible === 1 ? "publicación" : "publicaciones";
+  archiveSummary.textContent = query || activeYear !== "all"
+    ? `${visible} ${publicationLabel}${query ? visible === 1 ? " encontrada" : " encontradas" : ` de ${activeYear}`}`
+    : `${postCards.length} publicaciones · ${new Set(postCards.map((card) => card.dataset.year)).size} años`;
   searchClear.hidden = !query;
   searchStatus.textContent = query && visible === 0
     ? "No hay publicaciones que coincidan con la búsqueda."
-    : query ? `${visible} publicaciones encontradas.`
+    : query ? `${visible} ${publicationLabel} ${visible === 1 ? "encontrada" : "encontradas"}.`
       : activeYear !== "all" ? `${visible} publicaciones de ${activeYear}.` : "";
   document.querySelectorAll(".archive-filter").forEach((button) => {
     const isActive = button.dataset.yearFilter === activeYear;
@@ -411,9 +425,11 @@ function initializeHeroCarousel() {
   const carousel = document.querySelector("[data-hero-carousel]");
   const slides = [...carousel.querySelectorAll("[data-hero-slide]")];
   const buttons = [...carousel.querySelectorAll("[data-hero-slide-button]")];
+  const rotationToggle = carousel.querySelector("[data-carousel-toggle]");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   let activeIndex = 0;
   let timerId = 0;
+  let isPaused = false;
 
   const showSlide = (index) => {
     activeIndex = index;
@@ -432,10 +448,27 @@ function initializeHeroCarousel() {
   };
 
   const startRotation = () => {
-    if (reducedMotion.matches || document.hidden || timerId || carousel.matches(":hover, :focus-within")) return;
+    if (isPaused || reducedMotion.matches || document.hidden || timerId || carousel.matches(":hover, :focus-within")) return;
     timerId = window.setInterval(() => showSlide((activeIndex + 1) % slides.length), 6500);
   };
 
+  const updateRotationToggle = () => {
+    rotationToggle.disabled = reducedMotion.matches;
+    rotationToggle.textContent = reducedMotion.matches ? "Detenido" : isPaused ? "Reanudar" : "Pausar";
+    rotationToggle.setAttribute("aria-pressed", String(isPaused || reducedMotion.matches));
+    rotationToggle.setAttribute(
+      "aria-label",
+      reducedMotion.matches ? "Rotación desactivada por preferencia de movimiento reducido"
+        : isPaused ? "Reanudar rotación del carrusel" : "Pausar rotación del carrusel"
+    );
+  };
+
+  rotationToggle.addEventListener("click", () => {
+    isPaused = !isPaused;
+    if (isPaused) stopRotation();
+    updateRotationToggle();
+    startRotation();
+  });
   buttons.forEach((button) => {
     button.addEventListener("click", () => {
       showSlide(Number(button.dataset.heroSlideButton));
@@ -456,7 +489,9 @@ function initializeHeroCarousel() {
   reducedMotion.addEventListener("change", () => {
     if (reducedMotion.matches) stopRotation();
     else startRotation();
+    updateRotationToggle();
   });
+  updateRotationToggle();
   startRotation();
 }
 
@@ -494,32 +529,71 @@ contactForm.addEventListener("submit", (event) => {
   const name = contactForm.elements.namedItem("name").value.trim();
   const email = contactForm.elements.namedItem("email").value.trim();
   const message = contactForm.elements.namedItem("message").value.trim();
-  const subject = `Consulta desde Tripas de achilata: ${name}`;
-  const body = `Nombre: ${name}\nCorreo electrónico: ${email}\n\nMensaje:\n${message}`;
-  const composeUrl = new URL("https://mail.google.com/mail/");
-  composeUrl.searchParams.set("view", "cm");
-  composeUrl.searchParams.set("fs", "1");
-  composeUrl.searchParams.set("to", "juancarlososman371@gmail.com");
-  composeUrl.searchParams.set("su", subject);
-  composeUrl.searchParams.set("body", body);
-  window.open(composeUrl.href, "_blank", "noopener,noreferrer");
+  const website = contactForm.elements.namedItem("website").value;
+  contactSubmit.disabled = true;
+  contactSubmitLabel.textContent = "Enviando…";
+  contactStatus.className = "contact-status";
+  contactStatus.textContent = "Enviando tu mensaje…";
+
+  fetch("/api/contact", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, email, message, website })
+  })
+    .then(async (response) => {
+      const result = await response.json().catch(() => null);
+      if (!response.ok) throw new Error(result?.error || "No se pudo enviar el mensaje. Intentá de nuevo más tarde.");
+      if (!result || typeof result.message !== "string") {
+        throw new Error("El servidor respondió de forma inesperada. Intentá de nuevo más tarde.");
+      }
+      contactForm.reset();
+      contactStatus.classList.add("is-success");
+      contactStatus.textContent = result.message;
+    })
+    .catch((error) => {
+      console.error("No se pudo enviar el mensaje.", error);
+      contactStatus.classList.add("is-error");
+      contactStatus.textContent = error.message || "No se pudo enviar el mensaje. Intentá de nuevo más tarde.";
+    })
+    .finally(() => {
+      contactSubmit.disabled = false;
+      contactSubmitLabel.textContent = "Enviar mensaje";
+    });
 });
 
 updateTheme();
 initializeHeroCarousel();
 
-fetch("assets/data/posts.json")
-  .then((response) => {
-    if (!response.ok) throw new Error(`No se pudo cargar el archivo (${response.status}).`);
-    return response.json();
-  })
-  .then((posts) => {
-    if (!Array.isArray(posts) || posts.length === 0) throw new Error("El archivo no contiene entradas.");
-    renderArchive(posts);
-    updateFilters();
-  })
-  .catch((error) => {
-    console.error(error);
-    document.querySelector("#load-error").hidden = false;
-    archiveSummary.textContent = "Archivo no disponible";
-  });
+function loadArchive() {
+  if (archiveRequested) return;
+  archiveRequested = true;
+  fetch("assets/data/posts.json")
+    .then((response) => {
+      if (!response.ok) throw new Error(`No se pudo cargar el archivo (${response.status}).`);
+      return response.json();
+    })
+    .then((posts) => {
+      if (!Array.isArray(posts) || posts.length === 0) throw new Error("El archivo no contiene entradas.");
+      renderArchive(posts);
+      updateFilters();
+    })
+    .catch((error) => {
+      console.error(error);
+      document.querySelector("#load-error").hidden = false;
+      archiveSummary.textContent = "Archivo no disponible";
+    });
+}
+
+let archiveRequested = false;
+if ("IntersectionObserver" in window) {
+  const archiveLoader = new IntersectionObserver((entries) => {
+    if (entries.some((entry) => entry.isIntersecting)) {
+      archiveLoader.disconnect();
+      loadArchive();
+    }
+  }, { rootMargin: "500px 0px" });
+  archiveLoader.observe(document.querySelector("#destacados"));
+  archiveLoader.observe(document.querySelector("#archivo"));
+} else {
+  loadArchive();
+}
