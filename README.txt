@@ -12,6 +12,8 @@ Las redes enlazadas son YouTube (@juancarlososman), Instagram (@juan_carlos4955)
 
 La entrada "CONTAGIANDO PALABRAS. LA HISTORIA - EBOOK" lleva al PDF compartido en Google Drive en una pestaña aparte; no se incrusta en la página. El enlace seguirá funcionando mientras el archivo conserve el permiso de acceso compartido.
 
+La sección Contacto muestra el correo y teléfono públicos indicados por el autor. Su formulario prepara un borrador en la aplicación de correo del visitante; el sitio estático no envía ni almacena mensajes.
+
 Publicar con GitHub y Vercel:
 1. Sube los archivos de esta carpeta a un repositorio de GitHub.
 2. Entra en https://vercel.com/new e inicia sesión.

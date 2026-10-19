@@ -28,6 +28,7 @@
         <a href="#archivo">El archivo</a>
         <a href="#sobre-el-proyecto">El proyecto</a>
         <a href="#redes">Redes</a>
+        <a href="#contacto">Contacto</a>
       </nav>
       <button id="theme-toggle" class="theme-toggle btn" type="button" aria-label="Activar modo oscuro">Modo oscuro</button>
     </header>
@@ -138,6 +139,47 @@
         </div>
       </section>
     </main>
+
+    <section id="contacto" class="contact-section" aria-labelledby="contact-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Sigamos en contacto</p>
+          <h2 id="contact-title">Escribime</h2>
+        </div>
+        <p class="contact-intro">¿Tenés una consulta, una idea o querés compartir algo? Me va a gustar leerte.</p>
+      </div>
+      <div class="contact-layout">
+        <div class="contact-details">
+          <a class="contact-detail" href="mailto:juancarlososman371@gmail.com">
+            <span class="contact-detail-label">Correo electrónico</span>
+            <strong>juancarlososman371@gmail.com</strong>
+          </a>
+          <a class="contact-detail" href="tel:+543813340453">
+            <span class="contact-detail-label">Teléfono</span>
+            <strong>381 334-0453</strong>
+          </a>
+          <p class="contact-note">También podés escribirme directamente por correo o llamarme desde tu teléfono.</p>
+        </div>
+        <form id="contact-form" class="contact-form">
+          <div class="contact-form-row">
+            <div class="contact-field">
+              <label for="contact-name">Tu nombre</label>
+              <input id="contact-name" name="name" class="form-control" type="text" autocomplete="name" required>
+            </div>
+            <div class="contact-field">
+              <label for="contact-email">Tu correo electrónico</label>
+              <input id="contact-email" name="email" class="form-control" type="email" autocomplete="email" required>
+            </div>
+          </div>
+          <div class="contact-field">
+            <label for="contact-message">Tu mensaje</label>
+            <textarea id="contact-message" name="message" class="form-control" rows="5" required></textarea>
+          </div>
+          <button class="btn btn-hero contact-submit" type="submit">Preparar correo <span aria-hidden="true">↗</span></button>
+          <p class="contact-note">Al continuar, se abrirá tu aplicación de correo con el mensaje listo para revisar y enviar. El sitio no envía ni almacena el mensaje.</p>
+        </form>
+      </div>
+    </section>
 
     <footer id="redes" class="site-footer">
       <div class="footer-top">

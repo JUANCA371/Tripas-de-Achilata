@@ -23,6 +23,7 @@ const originSection = document.querySelector('[data-year-section="2018"]');
 const archiveSummary = document.querySelector("#archive-summary");
 const allCount = document.querySelector("#all-count");
 const themeToggle = document.querySelector("#theme-toggle");
+const contactForm = document.querySelector("#contact-form");
 let activeYear = "all";
 let postCards = [];
 
@@ -486,6 +487,16 @@ searchClear.addEventListener("click", () => {
 themeToggle.addEventListener("click", () => {
   document.documentElement.dataset.theme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
   updateTheme();
+});
+
+contactForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const name = contactForm.elements.namedItem("name").value.trim();
+  const email = contactForm.elements.namedItem("email").value.trim();
+  const message = contactForm.elements.namedItem("message").value.trim();
+  const subject = `Consulta desde Tripas de achilata: ${name}`;
+  const body = `Nombre: ${name}\nCorreo electrónico: ${email}\n\nMensaje:\n${message}`;
+  window.location.href = `mailto:juancarlososman371@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 });
 
 updateTheme();
