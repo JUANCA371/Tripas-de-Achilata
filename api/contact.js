@@ -109,5 +109,7 @@ module.exports = async function handler(request, response) {
     return sendJson(response, 502, { error: "No se pudo enviar el mensaje. Revisá los datos e intentá más tarde." });
   }
 
-  return sendJson(response, 200, { message: "¡Mensaje enviado! Gracias por escribirme." });
+  return sendJson(response, 200, {
+    message: "Muchas gracias por tu consulta. Nos contactaremos a la brevedad. Tus sugerencias son importantes para nosotros."
+  });
 };
