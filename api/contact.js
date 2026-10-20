@@ -105,7 +105,15 @@ module.exports = async function handler(request, response) {
   }
 
   if (!resendResponse.ok) {
-    console.error(`Resend rechazó el envío (HTTP ${resendResponse.status}).`);
+    const resendError = await resendResponse.json().catch(() => null);
+    const errorMessage = typeof resendError?.message === "string"
+      ? resendError.message.replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[email oculto]").slice(0, 300)
+      : "Resend no proporcionó detalles.";
+    console.error("Resend rechazó el envío.", {
+      status: resendResponse.status,
+      name: typeof resendError?.name === "string" ? resendError.name : "unknown_error",
+      message: errorMessage
+    });
     return sendJson(response, 502, { error: "No se pudo enviar el mensaje. Revisá los datos e intentá más tarde." });
   }
 
