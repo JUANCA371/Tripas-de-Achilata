@@ -12,6 +12,7 @@ const blockTags = new Set([
   "H6", "HEADER", "HR", "LI", "MAIN", "OL", "P", "PRE", "SECTION", "UL"
 ]);
 const gamesAlbumPostId = "tag:blogger.com,1999:blog-8284143732508605077.post-2255759889102110623";
+const emptyAudioLegendPostId = "tag:blogger.com,1999:blog-8284143732508605077.post-8626493701654959609";
 const ebookPdfUrl = "https://drive.google.com/file/d/1LlUjrUUYZ3zBI6d5K4ygfcWfkV0gcaEs/view?usp=sharing";
 const postSearch = document.querySelector("#post-search");
 const searchStatus = document.querySelector("#search-status");
@@ -135,9 +136,12 @@ function getPostImageUrl(post, size = "s1600") {
 }
 
 function getPostTitle(post) {
-  return post.id === gamesAlbumPostId
+  const title = post.id === gamesAlbumPostId
     ? post.title.replace("PANCHQUEROS", "PANCHUQUEROS")
     : post.title;
+  return title.replace("Ganadorese", "Ganadores")
+    .replace(/\s*\.$/, "")
+    .trim();
 }
 
 function getReadableText(node) {
@@ -427,6 +431,20 @@ function updateTheme() {
   themeToggle.setAttribute("aria-label", isDark ? "Activar modo claro" : "Activar modo oscuro");
 }
 
+function initializeTheme() {
+  let savedTheme = null;
+  try {
+    savedTheme = localStorage.getItem("tripas-theme");
+  } catch (error) {
+    console.warn("No se pudo leer la preferencia de tema guardada.", error);
+  }
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  document.documentElement.dataset.theme = savedTheme === "dark" || savedTheme === "light"
+    ? savedTheme
+    : prefersDark ? "dark" : "light";
+  updateTheme();
+}
+
 function initializeHeroCarousel() {
   const carousel = document.querySelector("[data-hero-carousel]");
   const slides = [...carousel.querySelectorAll("[data-hero-slide]")];
@@ -527,7 +545,13 @@ searchClear.addEventListener("click", () => {
   postSearch.focus();
 });
 themeToggle.addEventListener("click", () => {
-  document.documentElement.dataset.theme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = nextTheme;
+  try {
+    localStorage.setItem("tripas-theme", nextTheme);
+  } catch (error) {
+    console.warn("No se pudo guardar la preferencia de tema.", error);
+  }
   updateTheme();
 });
 
@@ -568,7 +592,7 @@ contactForm.addEventListener("submit", (event) => {
     });
 });
 
-updateTheme();
+initializeTheme();
 initializeHeroCarousel();
 
 function loadArchive() {
@@ -581,7 +605,7 @@ function loadArchive() {
     })
     .then((posts) => {
       if (!Array.isArray(posts) || posts.length === 0) throw new Error("El archivo no contiene entradas.");
-      renderArchive(posts);
+      renderArchive(posts.filter((post) => post.id !== emptyAudioLegendPostId));
       updateFilters();
     })
     .catch((error) => {
