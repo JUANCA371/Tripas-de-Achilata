@@ -31,7 +31,14 @@
         <a href="#sobre-el-proyecto">El proyecto</a>
         <a href="#contacto">Contacto</a>
       </nav>
-      <button id="theme-toggle" class="theme-toggle btn" type="button" aria-label="Activar modo oscuro">Modo oscuro</button>
+      <div class="header-tools">
+        <div class="text-size-controls" role="group" aria-label="Tamaño del texto">
+          <button id="text-size-decrease" type="button" aria-label="Reducir tamaño del texto" title="Reducir tamaño del texto">A−</button>
+          <button id="text-size-increase" type="button" aria-label="Aumentar tamaño del texto" title="Aumentar tamaño del texto">A+</button>
+        </div>
+        <span id="text-size-status" class="visually-hidden" aria-live="polite"></span>
+        <button id="theme-toggle" class="theme-toggle btn" type="button" aria-label="Activar modo oscuro">Modo oscuro</button>
+      </div>
     </header>
 
     <main id="contenido" tabindex="-1">
@@ -187,8 +194,9 @@
               </div>
               <nav class="sidebar-section" aria-label="Filtrar publicaciones por año">
                 <h3 class="sidebar-title">Explorá por año</h3>
-                <button class="archive-filter is-active" type="button" data-year-filter="all" aria-pressed="true">Todos los años <span id="all-count" class="filter-count"></span></button>
-                <div id="year-filters" class="year-filters"></div>
+                <div id="year-filters" class="year-filters">
+                  <button class="archive-filter is-active" type="button" data-year-filter="all" aria-pressed="true">Todos los años <span id="all-count" class="filter-count"></span></button>
+                </div>
               </nav>
               <div class="sidebar-note">
                 <span class="note-spark" aria-hidden="true">✦</span>

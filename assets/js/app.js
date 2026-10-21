@@ -24,12 +24,122 @@ const originSection = document.querySelector('[data-year-section="2018"]');
 const archiveSummary = document.querySelector("#archive-summary");
 const allCount = document.querySelector("#all-count");
 const themeToggle = document.querySelector("#theme-toggle");
+const textSizeDecrease = document.querySelector("#text-size-decrease");
+const textSizeIncrease = document.querySelector("#text-size-increase");
+const textSizeStatus = document.querySelector("#text-size-status");
 const contactForm = document.querySelector("#contact-form");
 const contactStatus = document.querySelector("#contact-status");
 const contactSubmit = contactForm.querySelector(".contact-submit");
 const contactSubmitLabel = contactSubmit.querySelector("[data-submit-label]");
 let activeYear = "all";
 let postCards = [];
+const textSizeLevels = ["small", "normal", "large", "larger"];
+const textSizePercentages = [90, 100, 110, 120];
+let textSizeIndex = 1;
+let activeSpeech = null;
+let speechSequence = 0;
+
+function updateTextSize(persist = false) {
+  const level = textSizeLevels[textSizeIndex];
+  document.documentElement.dataset.textSize = level;
+  textSizeDecrease.disabled = textSizeIndex === 0;
+  textSizeIncrease.disabled = textSizeIndex === textSizeLevels.length - 1;
+  textSizeStatus.textContent = `Tamaño del texto: ${textSizePercentages[textSizeIndex]}%`;
+  if (!persist) return;
+
+  try {
+    localStorage.setItem("tripas-text-size", level);
+  } catch (error) {
+    console.warn("No se pudo guardar la preferencia de tamaño de texto.", error);
+  }
+}
+
+function initializeTextSize() {
+  try {
+    const savedSize = localStorage.getItem("tripas-text-size");
+    const savedIndex = textSizeLevels.indexOf(savedSize);
+    if (savedIndex !== -1) textSizeIndex = savedIndex;
+  } catch (error) {
+    console.warn("No se pudo leer la preferencia de tamaño de texto guardada.", error);
+  }
+  updateTextSize();
+}
+
+function splitSpeechText(text, maxLength = 1400) {
+  const words = text.match(/\S+/gu) || [];
+  const chunks = [];
+  let chunk = "";
+
+  words.forEach((word) => {
+    const nextChunk = chunk ? `${chunk} ${word}` : word;
+    if (nextChunk.length > maxLength && chunk) {
+      chunks.push(chunk);
+      chunk = word;
+    } else {
+      chunk = nextChunk;
+    }
+  });
+  if (chunk) chunks.push(chunk);
+  return chunks;
+}
+
+function finishSpeech(sequence, message) {
+  if (sequence !== speechSequence || !activeSpeech) return;
+  activeSpeech.button.textContent = "Escuchar publicación";
+  activeSpeech.button.setAttribute("aria-pressed", "false");
+  activeSpeech.status.textContent = message;
+  activeSpeech = null;
+}
+
+function stopSpeech() {
+  if (!activeSpeech) return;
+  const previousSpeech = activeSpeech;
+  speechSequence += 1;
+  window.speechSynthesis.cancel();
+  previousSpeech.button.textContent = "Escuchar publicación";
+  previousSpeech.button.setAttribute("aria-pressed", "false");
+  previousSpeech.status.textContent = "Lectura detenida.";
+  activeSpeech = null;
+}
+
+function startPostSpeech(button, status, article, text) {
+  if (activeSpeech?.button === button) {
+    stopSpeech();
+    return;
+  }
+  stopSpeech();
+
+  const chunks = splitSpeechText(text);
+  const sequence = ++speechSequence;
+  let chunkIndex = 0;
+  activeSpeech = { button, status, article };
+  button.textContent = "Detener lectura";
+  button.setAttribute("aria-pressed", "true");
+  status.textContent = "Lectura en curso.";
+
+  const speakNextChunk = () => {
+    if (sequence !== speechSequence) return;
+    if (chunkIndex >= chunks.length) {
+      finishSpeech(sequence, "Terminó la lectura.");
+      return;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(chunks[chunkIndex]);
+    utterance.lang = document.documentElement.lang || "es";
+    utterance.onend = () => {
+      if (sequence !== speechSequence) return;
+      chunkIndex += 1;
+      speakNextChunk();
+    };
+    utterance.onerror = (event) => {
+      if (sequence !== speechSequence || event.error === "canceled" || event.error === "interrupted") return;
+      finishSpeech(sequence, "No se pudo completar la lectura. Intentá nuevamente.");
+    };
+    window.speechSynthesis.speak(utterance);
+  };
+
+  speakNextChunk();
+}
 
 function safeUrl(value, base = window.location.href) {
   try {
@@ -240,6 +350,24 @@ function makePostCard(post) {
   groupConsecutiveImages(content);
 
   article.append(heading, date);
+  if (content.textContent.trim() && "speechSynthesis" in window && "SpeechSynthesisUtterance" in window) {
+    const speechControls = document.createElement("div");
+    speechControls.className = "post-speech-controls";
+    const speechButton = document.createElement("button");
+    speechButton.className = "post-speech-button";
+    speechButton.type = "button";
+    speechButton.textContent = "Escuchar publicación";
+    speechButton.setAttribute("aria-pressed", "false");
+    const speechStatus = document.createElement("span");
+    speechStatus.className = "post-speech-status";
+    speechStatus.setAttribute("role", "status");
+    speechStatus.setAttribute("aria-live", "polite");
+    speechButton.addEventListener("click", () => {
+      startPostSpeech(speechButton, speechStatus, article, `${heading.textContent}. ${content.textContent}`);
+    });
+    speechControls.append(speechButton, speechStatus);
+    article.append(speechControls);
+  }
   if (isEbook) {
     const ebookLink = document.createElement("a");
     ebookLink.className = "ebook-link";
@@ -423,6 +551,7 @@ function updateFilters() {
     button.classList.toggle("is-active", isActive);
     button.setAttribute("aria-pressed", String(isActive));
   });
+  if (activeSpeech?.article.hidden) stopSpeech();
 }
 
 function updateTheme() {
@@ -554,6 +683,16 @@ themeToggle.addEventListener("click", () => {
   }
   updateTheme();
 });
+textSizeDecrease.addEventListener("click", () => {
+  if (textSizeIndex === 0) return;
+  textSizeIndex -= 1;
+  updateTextSize(true);
+});
+textSizeIncrease.addEventListener("click", () => {
+  if (textSizeIndex === textSizeLevels.length - 1) return;
+  textSizeIndex += 1;
+  updateTextSize(true);
+});
 
 contactForm.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -593,6 +732,7 @@ contactForm.addEventListener("submit", (event) => {
 });
 
 initializeTheme();
+initializeTextSize();
 initializeHeroCarousel();
 
 function loadArchive() {
