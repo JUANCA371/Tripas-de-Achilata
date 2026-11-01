@@ -598,6 +598,81 @@ function initializeTheme() {
   updateTheme();
 }
 
+function initializeHeroCarousel() {
+  const carousel = document.querySelector("[data-hero-carousel]");
+  const slides = [...carousel.querySelectorAll("[data-hero-slide]")];
+  const buttons = [...carousel.querySelectorAll("[data-hero-slide-button]")];
+  const rotationToggle = carousel.querySelector("[data-carousel-toggle]");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  let activeIndex = 0;
+  let timerId = 0;
+  let isPaused = false;
+
+  const showSlide = (index) => {
+    activeIndex = index;
+    slides.forEach((slide, slideIndex) => {
+      const isActive = slideIndex === activeIndex;
+      slide.classList.toggle("is-active", isActive);
+      slide.setAttribute("aria-label", `${slideIndex + 1} de ${slides.length}`);
+      slide.setAttribute("aria-hidden", String(!isActive));
+      buttons[slideIndex].classList.toggle("is-active", isActive);
+      buttons[slideIndex].setAttribute("aria-pressed", String(isActive));
+    });
+  };
+
+  const stopRotation = () => {
+    window.clearInterval(timerId);
+    timerId = 0;
+  };
+
+  const startRotation = () => {
+    if (isPaused || reducedMotion.matches || document.hidden || timerId || carousel.matches(":hover, :focus-within")) return;
+    timerId = window.setInterval(() => showSlide((activeIndex + 1) % slides.length), 6500);
+  };
+
+  const updateRotationToggle = () => {
+    rotationToggle.disabled = reducedMotion.matches;
+    rotationToggle.textContent = reducedMotion.matches ? "Detenido" : isPaused ? "Reanudar" : "Pausar";
+    rotationToggle.setAttribute("aria-pressed", String(isPaused || reducedMotion.matches));
+    rotationToggle.setAttribute(
+      "aria-label",
+      reducedMotion.matches ? "Rotación desactivada por preferencia de movimiento reducido"
+        : isPaused ? "Reanudar rotación del carrusel" : "Pausar rotación del carrusel"
+    );
+  };
+
+  rotationToggle.addEventListener("click", () => {
+    isPaused = !isPaused;
+    if (isPaused) stopRotation();
+    updateRotationToggle();
+    startRotation();
+  });
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => {
+      showSlide(Number(button.dataset.heroSlideButton));
+      stopRotation();
+      startRotation();
+    });
+  });
+  carousel.addEventListener("mouseenter", stopRotation);
+  carousel.addEventListener("mouseleave", startRotation);
+  carousel.addEventListener("focusin", stopRotation);
+  carousel.addEventListener("focusout", (event) => {
+    if (!carousel.contains(event.relatedTarget)) startRotation();
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) stopRotation();
+    else startRotation();
+  });
+  reducedMotion.addEventListener("change", () => {
+    if (reducedMotion.matches) stopRotation();
+    else startRotation();
+    updateRotationToggle();
+  });
+  updateRotationToggle();
+  startRotation();
+}
+
 document.addEventListener("click", (event) => {
   const exploreButton = event.target.closest("[data-explore-year]");
   if (exploreButton) {
@@ -702,6 +777,7 @@ contactForm.addEventListener("submit", (event) => {
 
 initializeTheme();
 initializeTextSize();
+initializeHeroCarousel();
 
 function loadArchive() {
   if (archiveRequested) return;
