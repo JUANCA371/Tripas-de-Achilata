@@ -17,12 +17,14 @@ const ebookPdfUrl = "https://drive.google.com/file/d/1LlUjrUUYZ3zBI6d5K4ygfcWfkV
 const postSearch = document.querySelector("#post-search");
 const searchStatus = document.querySelector("#search-status");
 const searchClear = document.querySelector("#search-clear");
-const archiveYears = document.querySelector("#archive-years");
+const yearOverview = document.querySelector("#year-overview");
+const yearDetail = document.querySelector("#year-detail");
+const yearDetailContent = document.querySelector("#year-detail-content");
+const archiveBack = document.querySelector("#archive-back");
+const storyBack = document.querySelector("#story-back");
+const archiveTools = document.querySelector(".archive-tools");
 const yearFilters = document.querySelector("#year-filters");
-const featuredPosts = document.querySelector("#featured-posts");
-const originSection = document.querySelector('[data-year-section="2018"]');
 const archiveSummary = document.querySelector("#archive-summary");
-const allCount = document.querySelector("#all-count");
 const themeToggle = document.querySelector("#theme-toggle");
 const textSizeDecrease = document.querySelector("#text-size-decrease");
 const textSizeIncrease = document.querySelector("#text-size-increase");
@@ -32,6 +34,8 @@ const contactStatus = document.querySelector("#contact-status");
 const contactSubmit = contactForm.querySelector(".contact-submit");
 const contactSubmitLabel = contactSubmit.querySelector("[data-submit-label]");
 let activeYear = "all";
+let browsingYear = null;
+let browsingPostId = null;
 let postCards = [];
 const textSizeLevels = ["small", "normal", "large", "larger"];
 const textSizePercentages = [90, 100, 110, 120];
@@ -310,7 +314,7 @@ function makePostCard(post) {
   article.dataset.postId = post.id;
   article.dataset.searchText = `${getPostTitle(post)} ${post.content}`.toLocaleLowerCase("es");
   const fragment = new DOMParser().parseFromString(post.content, "text/html");
-  const imageUrl = getPostImageUrl(post, "s800");
+  const imageUrl = getPostImageUrl(post, "s640");
   if (imageUrl) {
     const imageContainer = document.createElement("div");
     imageContainer.className = "post-image";
@@ -336,6 +340,13 @@ function makePostCard(post) {
   time.textContent = formatDate(post.published);
   date.append(time);
 
+  const plainText = getReadableText(fragment.body).replace(/\s+/g, " ").trim();
+  const excerpt = document.createElement("p");
+  excerpt.className = "post-excerpt";
+  excerpt.textContent = plainText
+    ? plainText.length > 150 ? `${plainText.slice(0, 147).trimEnd()}…` : plainText
+    : "Una historia de este recorrido espera ser descubierta.";
+
   const content = document.createElement("div");
   content.className = "post-content";
   const isEbook = post.title.toLocaleUpperCase("es").includes("CONTAGIANDO PALABRAS")
@@ -349,7 +360,7 @@ function makePostCard(post) {
   fragment.body.childNodes.forEach((child) => content.append(copySafeContent(child)));
   groupConsecutiveImages(content);
 
-  article.append(heading, date);
+  article.append(heading, date, excerpt);
   if (content.textContent.trim() && "speechSynthesis" in window && "SpeechSynthesisUtterance" in window) {
     const speechControls = document.createElement("div");
     speechControls.className = "post-speech-controls";
@@ -381,26 +392,16 @@ function makePostCard(post) {
     const reading = document.createElement("details");
     reading.className = "post-reading";
     const summary = document.createElement("summary");
-    summary.textContent = "Leer publicación";
+    summary.textContent = "Descubrir historia";
     reading.append(summary);
     reading.append(content);
     reading.addEventListener("toggle", () => {
       article.classList.toggle("is-expanded", reading.open);
-      article.setAttribute("aria-expanded", String(reading.open));
-      summary.textContent = reading.open ? "Cerrar publicación" : "Leer publicación";
+      summary.textContent = reading.open ? "Cerrar historia" : "Descubrir historia";
+      browsingPostId = reading.open ? post.id : null;
+      updateFilters();
     });
     article.append(reading);
-    article.tabIndex = 0;
-    article.setAttribute("aria-expanded", "false");
-    article.addEventListener("click", (event) => {
-      if (event.target.closest("a, button, input, select, textarea, summary, .post-content")) return;
-      reading.open = !reading.open;
-    });
-    article.addEventListener("keydown", (event) => {
-      if (event.target !== article || (event.key !== "Enter" && event.key !== " ")) return;
-      event.preventDefault();
-      reading.open = !reading.open;
-    });
   } else {
     const note = document.createElement("p");
     note.className = "archive-note";
@@ -411,62 +412,67 @@ function makePostCard(post) {
   return article;
 }
 
-function makeFeaturedCard(post) {
-  const article = document.createElement("article");
-  article.className = "featured-card";
+function makeYearTeaser(year, posts) {
+  const card = document.createElement("article");
+  card.className = "year-teaser-card";
+  card.dataset.year = year;
 
-  const image = document.createElement("img");
-  const imageUrl = getPostImageUrl(post, "s800");
-  image.src = imageUrl;
-  image.alt = "";
-  image.loading = "lazy";
-  image.decoding = "async";
-  image.addEventListener("error", () => image.closest(".featured-image").remove(), { once: true });
-
-  const imageContainer = document.createElement("div");
-  imageContainer.className = "featured-image";
-  imageContainer.append(image);
-
-  const copy = document.createElement("div");
-  copy.className = "featured-copy";
-  const label = document.createElement("p");
-  label.className = "featured-label";
-  label.textContent = `Proyecto · ${post.published.slice(0, 4)}`;
+  const heading = document.createElement("div");
+  heading.className = "year-teaser-heading";
   const title = document.createElement("h3");
-  title.textContent = getPostTitle(post);
-  const description = document.createElement("p");
-  description.className = "featured-description";
-  const fragment = new DOMParser().parseFromString(post.content, "text/html");
-  const text = getReadableText(fragment.body).replace(/\s+/g, " ").trim();
-  description.textContent = post.id === gamesAlbumPostId
-    ? "Un álbum de los Juegos Achilateros 2019, con juegos, música y momentos compartidos."
-    : text.length > 132 ? `${text.slice(0, 129).trimEnd()}…` : text;
-  const link = document.createElement("a");
-  link.className = "featured-link";
-  link.href = "#archivo";
-  link.dataset.openPost = post.id;
-  link.textContent = "Leer la historia";
-  link.setAttribute("aria-label", `Leer ${getPostTitle(post)}`);
+  title.textContent = year;
+  const count = document.createElement("span");
+  count.className = "year-teaser-count";
+  count.textContent = `${posts.length} ${posts.length === 1 ? "historia" : "historias"}`;
+  heading.append(title, count);
 
-  copy.append(label, title, description, link);
-  article.append(imageContainer, copy);
-  return article;
-}
+  const previews = document.createElement("div");
+  previews.className = "year-teaser-previews";
+  posts.forEach((post) => {
+    const preview = document.createElement("article");
+    preview.className = "year-teaser-item";
+    preview.dataset.postId = post.id;
 
-function renderFeatured(posts) {
-  const featured = [];
-  const years = [...new Set(posts.map((post) => post.published.slice(0, 4)))]
-    .sort((first, second) => Number(second) - Number(first));
+    const imageUrl = getPostImageUrl(post, "s400");
+    if (imageUrl) {
+      const image = document.createElement("img");
+      image.src = imageUrl;
+      image.alt = "";
+      image.loading = "lazy";
+      image.decoding = "async";
+      image.addEventListener("error", () => image.remove(), { once: true });
+      preview.append(image);
+    } else {
+      const placeholder = document.createElement("span");
+      placeholder.className = "year-teaser-placeholder";
+      placeholder.setAttribute("aria-hidden", "true");
+      placeholder.textContent = "✳";
+      preview.append(placeholder);
+    }
 
-  for (const year of years) {
-    const post = posts
-      .filter((entry) => entry.published.startsWith(year) && getPostImageUrl(entry))
-      .sort((first, second) => second.published.localeCompare(first.published))[0];
-    if (post) featured.push(post);
-    if (featured.length === 3) break;
-  }
+    const copy = document.createElement("div");
+    copy.className = "year-teaser-copy";
+    const storyTitle = document.createElement("h4");
+    storyTitle.textContent = getPostTitle(post);
+    const fragment = new DOMParser().parseFromString(post.content, "text/html");
+    const text = getReadableText(fragment.body).replace(/\s+/g, " ").trim();
+    const teaser = document.createElement("p");
+    teaser.textContent = text
+      ? text.length > 96 ? `${text.slice(0, 93).trimEnd()}…` : text
+      : "Una historia de este recorrido espera ser descubierta.";
+    copy.append(storyTitle, teaser);
+    preview.append(copy);
+    previews.append(preview);
+  });
 
-  featured.forEach((post) => featuredPosts.append(makeFeaturedCard(post)));
+  const action = document.createElement("button");
+  action.className = "year-teaser-action";
+  action.type = "button";
+  action.dataset.exploreYear = year;
+  action.textContent = "Explorar el año";
+  action.setAttribute("aria-label", `Explorar las historias de ${year}`);
+  card.append(heading, previews, action);
+  return card;
 }
 
 function renderArchive(posts) {
@@ -477,30 +483,29 @@ function renderArchive(posts) {
     groups.get(year).push(post);
   });
   const years = [...groups.keys()].sort((a, b) => Number(b) - Number(a));
-  const originPosts = groups.get("2018") || [];
-  originPosts.sort((a, b) => a.published.localeCompare(b.published));
-  originSection.querySelector('[data-year-count="2018"]').textContent = `${originPosts.length} entradas`;
-  originPosts.forEach((post) => originSection.querySelector('[data-post-list="2018"]').append(makePostCard(post)));
+  for (const year of years) {
+    const yearPosts = groups.get(year).sort((a, b) => b.published.localeCompare(a.published));
+    yearOverview.append(makeYearTeaser(year, yearPosts));
 
-  const laterYears = years.filter((year) => year !== "2018");
-  for (const year of laterYears) {
     const section = document.createElement("section");
     section.className = "year-section";
     section.dataset.yearSection = year;
+    section.hidden = true;
     const heading = document.createElement("div");
     heading.className = "year-heading";
     const title = document.createElement("h3");
-    title.textContent = year;
+    title.id = `year-detail-title-${year}`;
+    title.tabIndex = -1;
+    title.textContent = `${year} · Historias para descubrir`;
     const count = document.createElement("span");
     count.className = "year-count";
-    count.textContent = `${groups.get(year).length} entradas`;
+    count.textContent = `${yearPosts.length} historias`;
     heading.append(title, count);
     const list = document.createElement("div");
     list.className = "post-list";
-    const yearPosts = groups.get(year).sort((a, b) => b.published.localeCompare(a.published));
     yearPosts.forEach((post) => list.append(makePostCard(post)));
     section.append(heading, list);
-    archiveYears.append(section);
+    yearDetailContent.append(section);
   }
 
   for (const year of years) {
@@ -509,16 +514,14 @@ function renderArchive(posts) {
     button.type = "button";
     button.dataset.yearFilter = year;
     button.setAttribute("aria-pressed", "false");
-    button.textContent = `${year} (${groups.get(year).length})`;
+    button.textContent = year;
     yearFilters.append(button);
   }
 
-  postCards = [...document.querySelectorAll(".post-card")];
-  allCount.textContent = `(${posts.length})`;
+  postCards = [...yearDetailContent.querySelectorAll(".post-card")];
   const entryTotal = document.querySelector("[data-entry-total]");
   if (entryTotal) entryTotal.textContent = posts.length.toString();
   archiveSummary.textContent = `${posts.length} publicaciones · ${years.length} años`;
-  renderFeatured(posts);
 }
 
 function updateFilters() {
@@ -527,16 +530,37 @@ function updateFilters() {
   postCards.forEach((card) => {
     const matchesYear = activeYear === "all" || card.dataset.year === activeYear;
     const matchesText = !query || card.dataset.searchText.includes(query);
-    card.hidden = !(matchesYear && matchesText);
+    const matchesStory = browsingPostId === null || card.dataset.postId === browsingPostId;
+    card.hidden = !(matchesYear && matchesText && matchesStory);
     if (!card.hidden) visible += 1;
   });
   document.querySelectorAll("[data-year-section]").forEach((section) => {
     const yearCards = [...section.querySelectorAll(".post-card")];
     const visibleInYear = yearCards.filter((card) => !card.hidden).length;
-    section.hidden = visibleInYear === 0;
+    section.hidden = section.dataset.yearSection !== browsingYear || visibleInYear === 0;
+    section.querySelector(".year-heading").hidden = browsingPostId !== null;
     const count = section.querySelector(".year-count");
-    count.textContent = `${visibleInYear} ${visibleInYear === 1 ? "entrada" : "entradas"}`;
+    count.textContent = `${visibleInYear} ${visibleInYear === 1 ? "historia" : "historias"}`;
   });
+  document.querySelectorAll(".year-teaser-card").forEach((card) => {
+    const yearCards = postCards.filter((post) => post.dataset.year === card.dataset.year);
+    const visiblePostsInYear = yearCards.filter((post) => !post.hidden);
+    const visibleInYear = visiblePostsInYear.length;
+    const illustratedPosts = visiblePostsInYear.filter((post) => post.querySelector(".post-image"));
+    const previewIds = new Set((illustratedPosts.length ? illustratedPosts : visiblePostsInYear)
+      .slice(0, 2).map((post) => post.dataset.postId));
+    card.hidden = visibleInYear === 0;
+    card.querySelector(".year-teaser-count").textContent = `${visibleInYear} ${visibleInYear === 1 ? "historia" : "historias"}`;
+    card.querySelectorAll(".year-teaser-item").forEach((preview) => {
+      const post = yearCards.find((entry) => entry.dataset.postId === preview.dataset.postId);
+      preview.hidden = !post || post.hidden || !previewIds.has(preview.dataset.postId);
+    });
+  });
+  yearOverview.hidden = browsingYear !== null;
+  yearDetail.hidden = browsingYear === null;
+  archiveBack.hidden = browsingPostId !== null;
+  storyBack.hidden = browsingPostId === null;
+  archiveTools.hidden = browsingPostId !== null;
   const publicationLabel = visible === 1 ? "publicación" : "publicaciones";
   archiveSummary.textContent = query || activeYear !== "all"
     ? `${visible} ${publicationLabel}${query ? visible === 1 ? " encontrada" : " encontradas" : ` de ${activeYear}`}`
@@ -574,97 +598,42 @@ function initializeTheme() {
   updateTheme();
 }
 
-function initializeHeroCarousel() {
-  const carousel = document.querySelector("[data-hero-carousel]");
-  const slides = [...carousel.querySelectorAll("[data-hero-slide]")];
-  const buttons = [...carousel.querySelectorAll("[data-hero-slide-button]")];
-  const rotationToggle = carousel.querySelector("[data-carousel-toggle]");
-  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  let activeIndex = 0;
-  let timerId = 0;
-  let isPaused = false;
-
-  const showSlide = (index) => {
-    activeIndex = index;
-    slides.forEach((slide, slideIndex) => {
-      const isActive = slideIndex === activeIndex;
-      slide.classList.toggle("is-active", isActive);
-      slide.setAttribute("aria-label", `${slideIndex + 1} de ${slides.length}`);
-      slide.setAttribute("aria-hidden", String(!isActive));
-      buttons[slideIndex].classList.toggle("is-active", isActive);
-      buttons[slideIndex].setAttribute("aria-pressed", String(isActive));
-    });
-  };
-
-  const stopRotation = () => {
-    window.clearInterval(timerId);
-    timerId = 0;
-  };
-
-  const startRotation = () => {
-    if (isPaused || reducedMotion.matches || document.hidden || timerId || carousel.matches(":hover, :focus-within")) return;
-    timerId = window.setInterval(() => showSlide((activeIndex + 1) % slides.length), 6500);
-  };
-
-  const updateRotationToggle = () => {
-    rotationToggle.disabled = reducedMotion.matches;
-    rotationToggle.textContent = reducedMotion.matches ? "Detenido" : isPaused ? "Reanudar" : "Pausar";
-    rotationToggle.setAttribute("aria-pressed", String(isPaused || reducedMotion.matches));
-    rotationToggle.setAttribute(
-      "aria-label",
-      reducedMotion.matches ? "Rotación desactivada por preferencia de movimiento reducido"
-        : isPaused ? "Reanudar rotación del carrusel" : "Pausar rotación del carrusel"
-    );
-  };
-
-  rotationToggle.addEventListener("click", () => {
-    isPaused = !isPaused;
-    if (isPaused) stopRotation();
-    updateRotationToggle();
-    startRotation();
-  });
-  buttons.forEach((button) => {
-    button.addEventListener("click", () => {
-      showSlide(Number(button.dataset.heroSlideButton));
-      stopRotation();
-      startRotation();
-    });
-  });
-  carousel.addEventListener("mouseenter", stopRotation);
-  carousel.addEventListener("mouseleave", startRotation);
-  carousel.addEventListener("focusin", stopRotation);
-  carousel.addEventListener("focusout", (event) => {
-    if (!carousel.contains(event.relatedTarget)) startRotation();
-  });
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) stopRotation();
-    else startRotation();
-  });
-  reducedMotion.addEventListener("change", () => {
-    if (reducedMotion.matches) stopRotation();
-    else startRotation();
-    updateRotationToggle();
-  });
-  updateRotationToggle();
-  startRotation();
-}
-
 document.addEventListener("click", (event) => {
-  const featuredLink = event.target.closest("[data-open-post]");
-  if (featuredLink) {
-    const post = postCards.find((card) => card.dataset.postId === featuredLink.dataset.openPost);
-    if (!post) return;
-    activeYear = post.dataset.year;
+  const exploreButton = event.target.closest("[data-explore-year]");
+  if (exploreButton) {
+    browsingYear = exploreButton.dataset.exploreYear;
+    activeYear = browsingYear;
+    updateFilters();
+    yearDetailContent.querySelector(`[data-year-section="${browsingYear}"] h3`)?.focus();
+    return;
+  }
+
+  if (event.target.closest("#archive-back")) {
+    browsingYear = null;
+    browsingPostId = null;
+    activeYear = "all";
     postSearch.value = "";
     updateFilters();
-    post.querySelector(".post-reading")?.setAttribute("open", "");
-    window.requestAnimationFrame(() => post.scrollIntoView({ behavior: "smooth", block: "start" }));
+    document.querySelector("#archive-title").focus();
+    return;
+  }
+
+  if (event.target.closest("#story-back")) {
+    const currentPost = postCards.find((post) => post.dataset.postId === browsingPostId);
+    currentPost?.querySelector(".post-reading")?.removeAttribute("open");
+    browsingPostId = null;
+    updateFilters();
+    currentPost?.querySelector(".post-reading summary")?.focus();
     return;
   }
 
   const button = event.target.closest("[data-year-filter]");
   if (!button) return;
+  postCards.find((post) => post.dataset.postId === browsingPostId)
+    ?.querySelector(".post-reading")?.removeAttribute("open");
+  browsingPostId = null;
   activeYear = button.dataset.yearFilter;
+  browsingYear = null;
   updateFilters();
 });
 postSearch.addEventListener("input", updateFilters);
@@ -733,7 +702,6 @@ contactForm.addEventListener("submit", (event) => {
 
 initializeTheme();
 initializeTextSize();
-initializeHeroCarousel();
 
 function loadArchive() {
   if (archiveRequested) return;
@@ -763,7 +731,6 @@ if ("IntersectionObserver" in window) {
       loadArchive();
     }
   }, { rootMargin: "500px 0px" });
-  archiveLoader.observe(document.querySelector("#destacados"));
   archiveLoader.observe(document.querySelector("#archivo"));
 } else {
   loadArchive();
