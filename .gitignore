@@ -1,2 +1,9 @@
 .env.local
 .env.*
+*.xlsx
+*.xls
+*.csv
+*.XLSX
+*.XLS
+*.CSV
+!assets/data/plantilla-alumnos.csv

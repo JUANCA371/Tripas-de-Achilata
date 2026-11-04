@@ -2,10 +2,14 @@ TRIPAS DE ACHILATA — SITIO ESTÁTICO
 
 Estructura:
 - index.html: portada y estructura semántica de la página.
+- aula.html: microapp independiente con un panel docente de muestra; la portada principal no se reemplaza.
 - assets\css\styles.css: estilos propios, paleta, diseño adaptable y temas.
+- assets\css\aula.css y assets\js\aula.js: interfaz adaptable e interacciones de la microapp Mi Aula.
 - assets\js\app.js: archivo interactivo, buscador, filtros y cambio visual.
 - assets\data\posts.json: copia estática de las 26 entradas del archivo público; la entrada vacía "Audioleyendas 2018- En Proceso" no se muestra.
 - api\contact.js: función de Vercel que valida y envía el formulario mediante Resend.
+- api\aula-config.js: entrega únicamente la configuración pública de Supabase a la interfaz de Mi Aula.
+- supabase\schema.sql: tablas, acceso restringido por docentes autorizados y sincronización de asistencia.
 
 La interfaz usa Bootstrap 5.3.3 desde jsDelivr, Roboto y Lora desde Google Fonts, además de estilos propios. El tema inicial respeta la preferencia del sistema y la selección manual se conserva entre visitas. Los controles A− y A+ permiten ajustar el tamaño del texto en cuatro niveles y guardan la preferencia entre visitas. La portada presenta un carrusel accesible con dos fotos: estudiantes disfrazadas de la Escuela Secundaria Zavaleta y estudiantes de la Escuela Social de C. C. Nuestra Señora del Valle bailando en el escenario. El carrusel puede pausarse, detenerse al pasar el puntero o el foco y respeta la preferencia de movimiento reducido. El archivo aparece por año en tarjetas con hasta dos imágenes y textos de adelanto. El botón «Explorar el año» abre las historias de ese período, y «Descubrir historia» lleva a una vista de lectura individual con regreso al año. La búsqueda y los filtros por año muestran solo los resultados coincidentes; en móviles, los filtros se recorren horizontalmente. Las historias y sus imágenes se cargan al acercarse al archivo para reducir la carga inicial. Las secuencias de fotos se presentan en una cuadrícula adaptable sin recortar las imágenes. Cuando el navegador lo admite, las publicaciones con texto incluyen lectura en voz alta con control para detenerla; el texto se divide en segmentos para que el lector de voz pueda continuar también en artículos largos. Las fotos del contenido se solicitan a 640 px y usan carga diferida; al abrirlas, conservan el enlace a la imagen original. Las notas de prensa se mantienen en un apartado desplegable y enlazan a sus fuentes originales. Las fotos y los textos de las historias se obtienen del contenido archivado de Blogger. Se necesita conexión a internet para Bootstrap, las tipografías y las imágenes remotas.
 
@@ -23,6 +27,18 @@ Publicar con GitHub y Vercel:
 5. En Resend, verifica un dominio y crea una clave API.
 6. En el proyecto de Vercel, abre Settings > Environment Variables y configura `RESEND_API_KEY`, `CONTACT_FROM_EMAIL` y `CONTACT_TO_EMAIL` para Production (y Preview si corresponde). El remitente debe usar el dominio verificado en Resend; el destinatario es el correo que recibirá los mensajes.
 7. Vuelve a desplegar el proyecto para aplicar las variables. No pongas la clave de Resend en archivos del navegador ni en el repositorio.
+
+La microapp docente está disponible en `/aula.html` y enlazada desde la portada. El padrón y la asistencia requieren Supabase y solo son accesibles a cuentas autorizadas. La tarea de demostración se guarda localmente. La planilla Excel se procesa en el navegador; se envían a Supabase únicamente las columnas Nombre, Apellido y Curso, y no se conserva el archivo original. La importación acepta archivos `.xlsx`, `.xls` y `.csv` de hasta 5 MB y 500 filas, con esos nombres de columna en la primera hoja. Descargar `assets\data\plantilla-alumnos.csv` como ejemplo.
+
+Configurar Mi Aula de forma segura:
+1. Crea un proyecto de Supabase y ejecuta `supabase\schema.sql` en SQL Editor.
+2. En Supabase, habilita el acceso por correo y contraseña y desactiva los registros públicos. Crea manualmente la cuenta docente autorizada.
+3. En Authentication > Users, copia el UUID de esa cuenta. Ejecuta en SQL Editor `insert into public.allowed_teachers (user_id, email) values ('UUID-DE-USUARIO', 'correo-docente');`. Para autorizar otro docente, agrega otra fila en esta tabla.
+4. En Vercel > Settings > Environment Variables, define `SUPABASE_URL` y `SUPABASE_ANON_KEY` para Production y Preview. Son datos de configuración pública; las políticas de Row Level Security del esquema protegen los registros. Nunca configures `service_role` en el navegador ni en variables públicas.
+5. Desplegá de nuevo el sitio. Para desarrollo local con Vercel CLI, guarda esas dos variables en `.env.local` (ya está excluido de Git) y ejecuta `vercel dev`.
+6. Inicia sesión con la cuenta autorizada en `/aula.html`. Descarga y completa la plantilla o prepara un Excel con las columnas `Nombre`, `Apellido` y `Curso`. La importación agrega estudiantes nuevos, omite repetidos y no borra los que ya existen.
+
+El footer de Mi Aula muestra por ahora un distintivo tipográfico provisional de Soluciones Osmán. Reemplazarlo por el logo oficial requiere añadir el archivo original a `assets\images`.
 
 Los cambios locales no se guardan automáticamente en GitHub. Para publicarlos, hay que subirlos al repositorio (por Git o desde GitHub); Vercel puede desplegarlos al detectar el nuevo cambio.
 
